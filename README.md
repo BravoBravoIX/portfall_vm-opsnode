@@ -1,75 +1,80 @@
-**VM Build Sheet: vm-opsnode**
+VM Build Sheet: vm-opsnode
 
-**Purpose:**
-Simulates the backend for the CCTV and operational visibility system at Southgate Terminal. Participants will investigate why all camera feeds are down and identify possible interference or tampering. This machine includes log entries, anomalous footage file names, and system instability. Unlike other VMs, this one also ties into the manual operations SOP.
+Purpose:
+Simulates the backend for CCTV and operational visibility at Southgate Maritime Terminal. Participants investigate complete camera feed failures and identify signs of signal interference, tampering, or local corruption. This node integrates with manual operations protocols and visual surveillance fallback.
 
----
+1. Services and Software to Install
+Standard CLI: vim, grep, scp, cron, rsyslog, net-tools
 
-### 1. Services and Software to Install
+Multimedia tools: ffmpeg, imagemagick (or placeholder equivalents)
 
-* Standard CLI: `vim`, `grep`, `scp`, `cron`, `rsyslog`, `net-tools`
-* `ffmpeg` or placeholder binaries to simulate video stream utilities
-
-### 2. Directory and File Structure
-
-```bash
+2. Directory and File Structure
+bash
+Copy
+Edit
 /var/log/cctv/
-  └── stream.log            # Logs showing stream errors, jitter, feed resets
+  └── stream.log              # Feed logs with jitter, dropouts, and encoder restarts
+
 /var/cctv/archive/
-  ├── camera01_corrupted.ts
+  ├── camera01_corrupted.ts   # Simulated corrupt media
   ├── camera02_corrupted.ts
-  └── camera03_ok.ts
+  └── camera03_ok.ts          # Simulated working feed
+
 /opt/reference/
-  └── expected_layout.png   # Screenshot of expected camera views for comparison
-```
+  └── expected_layout.png     # Visual layout of camera zones
+3. Log Content Details
+stream.log includes:
 
-### 3. Log Content Details
+Frequent feed dropouts and jitter (e.g. feed lost, signal scrambling)
 
-* `stream.log` includes:
+Encoder restarts (daemon: restarting encoder)
 
-  * Periodic drops (`feed lost`, `signal scrambling`)
-  * Timestamp anomalies
-  * Intermittent reboot entries (e.g. `daemon: restarting encoder`)
+Late-stage complete camera offline status
 
-### 4. Archive Files
+Subtle timestamp inconsistencies
 
-* `.ts` files are dummy media files with:
+4. Archive File Behaviour
+.ts files mimic camera recordings:
 
-  * camera01/camera02: unreadable (simulate with empty files or corrupted headers)
-  * camera03: valid dummy video or placeholder text
+camera01 and camera02: intentionally unreadable (corrupt header or null content)
 
-### 5. Reference File for Analysis
+camera03: minimal valid placeholder file
 
-* Layout image: shows which cameras point where
-* Teams can use this to assess what might be impacted (i.e. crane area, gate, ship berth)
+5. Reference Overlay Image
+expected_layout.png provides camera-to-location mapping
 
-### 6. Expected Participant Actions
+Used by participants to correlate footage loss with critical port zones (e.g. ship berths, gate, crane ops)
 
-* Review logs for systemic vs. localised issues
-* Attempt to playback or view corrupted streams
-* Compare with reference layout to determine coverage loss
-* Escalate due to signal scrambling (potential interference or compromise)
-* Initiate manual surveillance protocols (tie to Manual Ops SOP)
+6. Expected Participant Actions
+Analyse logs for temporal patterns and escalating failures
 
-### 7. Outcomes
+Attempt playback or inspection of archive footage
 
-* Participants conclude cameras were intentionally jammed or disrupted
-* Triggers SOP fallback to manual ops
-* If they submit reference overlay and stream log together, earns points
+Compare layout image with affected streams
 
-### 8. Inject Linkages
+Escalate signal jamming or encoder sabotage suspicion
 
-* INJ002 (CCTV feed stutter starts)
-* INJ003 (Camera feeds down)
-* INJ014 (Manual ops triggered due to sustained failure)
+Initiate manual surveillance SOP fallback
 
-### 9. Scoring Hooks
+7. Outcomes
+Participants determine CCTV is not failing randomly, but due to coordinated interference
 
-* Did they differentiate stream dropout vs hardware failure?
-* Did they escalate interference?
-* Did they attempt playback or extract metadata?
-* Did they activate manual procedures as per SOP?
+Correct escalation and SOP activation (Manual Ops) demonstrate resilience
 
----
+High marks if both logs and overlay image are transferred for audit
 
-**Next Step:** Prepare `setup_opsnode.sh`, `verify_opsnode_setup.sh`, and `participant_action_opsnode.sh`.
+8. Inject Linkages
+INJ002 — Initial CCTV feed stutter
+
+INJ003 — Complete camera blackout
+
+INJ014 — Manual operations officially triggered
+
+9. Scoring Hooks
+Did participants distinguish between random dropout and jamming?
+
+Did they escalate technical sabotage appropriately?
+
+Did they transfer logs + overlay image to vm-audit?
+
+Did they invoke fallback procedures per SOP?
