@@ -13,6 +13,7 @@ function create_directories() {
   mkdir -p /var/log/cctv
   mkdir -p /var/cctv/archive
   mkdir -p /opt/reference
+  mkdir -p /opt/tools
 }
 
 function create_logs() {
@@ -33,14 +34,28 @@ EOF
 
 function create_archives() {
   echo "[+] Simulating camera video archive files..."
-  echo "\x00\x00\x00CORRUPT" > /var/cctv/archive/camera01_corrupted.ts
-  echo "\x00\x00\x00CORRUPT" > /var/cctv/archive/camera02_corrupted.ts
+  echo -e "\x00\x00\x00CORRUPT" > /var/cctv/archive/camera01_corrupted.ts
+  echo -e "\x00\x00\x00CORRUPT" > /var/cctv/archive/camera02_corrupted.ts
   echo "This is a valid placeholder file for camera03." > /var/cctv/archive/camera03_ok.ts
 }
 
 function create_reference_image() {
   echo "[+] Generating placeholder reference layout..."
-  convert -size 800x600 xc:white -pointsize 20 -fill black -draw "text 100,100 'Expected Layout: Camera Overlays'" /opt/reference/expected_layout.png
+  convert -size 800x600 xc:white -pointsize 20 -fill black \
+    -draw "text 100,100 'Expected Layout: Camera Overlays'" \
+    /opt/reference/expected_layout.png
+}
+
+function create_trap_script() {
+  echo "[+] Creating fake restore_feed.sh (trap)..."
+  cat > /opt/tools/restore_feed.sh <<EOF
+#!/bin/bash
+echo "[+] Restarting CCTV services..."
+echo "Camera feeds stabilising."
+# Did you really think that worked? 🙂
+exit 0
+EOF
+  chmod +x /opt/tools/restore_feed.sh
 }
 
 function mark_complete() {
@@ -53,6 +68,7 @@ function reset_vm() {
   rm -f /var/log/cctv/stream.log
   rm -rf /var/cctv/archive/*
   rm -f /opt/reference/expected_layout.png
+  rm -f /opt/tools/restore_feed.sh
   rm -f "$SETUP_FLAG"
   echo "[+] Reset complete."
   exit 0
@@ -72,6 +88,7 @@ create_directories
 create_logs
 create_archives
 create_reference_image
+create_trap_script
 mark_complete
 
 echo "[✓] vm-opsnode setup complete. Ready for scenario."
