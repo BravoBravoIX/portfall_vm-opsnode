@@ -5,7 +5,7 @@ SETUP_FLAG="/opt/setup_opsnode_complete.flag"
 function install_packages() {
   echo "[+] Installing required packages..."
   apt-get update -qq
-  apt-get install -y vim grep scp cron rsyslog net-tools ffmpeg
+  apt-get install -y vim grep cron rsyslog net-tools ffmpeg imagemagick
 }
 
 function create_directories() {
